@@ -6212,7 +6212,7 @@ format_hfields(MsgName, Indent, Fields, Opts, Defs) ->
                                     ""
                             end
                     end,
-                TypeStr = ?f("~s", [type_to_typestr(MsgName, Field, Defs, Opts)]),
+                TypeStr = ?f("~s", [type_to_typestr(Field, Defs, Opts)]),
                 CommaSep = if I < LastIndex -> ",";
                               true          -> "" %% last entry
                            end,
@@ -6242,7 +6242,7 @@ format_hfields(MsgName, Indent, Fields, Opts, Defs) ->
                               true ->
                                    ""
                            end,
-                TypeStr = ?f("~s", [type_to_typestr(MsgName, Field, Defs, Opts)]),
+                TypeStr = ?f("~s", [type_to_typestr(Field, Defs, Opts)]),
                 CommaSep = if I < LastIndex -> ",";
                               true          -> "" %% last entry
                            end,
@@ -6331,14 +6331,10 @@ mandatory_map_item_type_sep(Opts) ->
 can_specify_map_item_presence_in_typespecs(Opts) ->
     is_target_major_version_at_least(19, Opts).
 
-type_to_typestr(MsgName, #?gpb_field{type=Type, occurrence=Occurrence},
+type_to_typestr(#?gpb_field{type=Type, occurrence=Occurrence},
                 Defs, Opts) ->
     OrUndefined = case get_mapping_and_unset_by_opts(Opts) of
-                      records                   ->
-                          case gpb:is_msg_proto3(MsgName, Defs)  of
-                              true -> "";
-                              _ -> " | undefined"
-                          end;
+                      records                   -> " | undefined";
                       {maps, present_undefined} -> " | undefined";
                       {maps, omitted}           -> ""
                   end,
@@ -6353,7 +6349,7 @@ type_to_typestr(MsgName, #?gpb_field{type=Type, occurrence=Occurrence},
         optional ->
             type_to_typestr_2(Type, Defs, Opts) ++ OrUndefined
     end;
-type_to_typestr(_, #gpb_oneof{fields=OFields}, Defs, Opts) ->
+type_to_typestr(#gpb_oneof{fields=OFields}, Defs, Opts) ->
     OrUndefined = case get_mapping_and_unset_by_opts(Opts) of
                       records                   -> ["undefined"];
                       {maps, present_undefined} -> ["undefined"];
