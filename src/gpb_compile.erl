@@ -6335,7 +6335,10 @@ type_to_typestr(MsgName, #?gpb_field{type=Type, occurrence=Occurrence},
                 Defs, Opts) ->
     OrUndefined = case get_mapping_and_unset_by_opts(Opts) of
                       records                   ->
-                          case gpb:is_msg_proto3(MsgName, Defs)  of
+                          case gpb:is_msg_proto3(MsgName, Defs) andalso
+                              not (is_tuple(Type) andalso
+                                   element(1, Type) =:= msg)
+                          of
                               true -> "";
                               _ -> " | undefined"
                           end;
