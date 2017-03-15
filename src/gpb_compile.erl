@@ -6190,9 +6190,17 @@ format_hfields(MsgName, Indent, Fields, Opts, Defs) ->
                 DefaultStr =
                     case proplists:get_value(default, FOpts, '$no') of
                         '$no' ->
-                            case {Occur, MapsOrRecords} of
-                                {repeated, records} -> ?f(" = []");
-                                {_, records} ->
+                            case {Type, Occur, MapsOrRecords} of
+                                {{map,_,_}, repeated, records} ->
+                                    case proplists:get_value(mapfields_as_maps, Opts, false) of
+                                        true ->
+                                            ?f(" = #{}");
+                                        false ->
+                                            ?f(" = []")
+                                    end;
+                                {_, repeated, records} ->
+                                    ?f(" = []");
+                                {_, _, records} ->
                                     case IsProto3 of
                                         true ->
                                             Default =
@@ -8243,7 +8251,7 @@ understands_coding(Opts) ->
 is_target_major_version_at_least(VsnMin, Opts) ->
     case proplists:get_value(target_erlang_version, Opts, current) of
         current ->
-            is_current_major_version_at_least(VsnMin); 
+            is_current_major_version_at_least(VsnMin);
         N when is_integer(N) ->
             N >= VsnMin
     end.
